@@ -12,7 +12,7 @@ def train_xgboost(X_train, y_train, X_val, y_val, params=None):
         params = params = {
             'objective': 'binary:logistic',  
             'eval_metric': 'aucpr',
-            'scale_pos_weight': 1,
+            'scale_pos_weight': total_normal / total_fraude,
             'max_depth': 6,
             'learning_rate': 0.1
         }
@@ -30,7 +30,7 @@ def evaluate_xgboost(model, X_test, y_test):
     dtest = xgb.DMatrix(X_test, label=y_test)
 
     probabilidades = model.predict(dtest)
-    predicciones = [1 if prob >= 0.45 else 0 for prob in probabilidades]
+    predicciones = [1 if prob >= 0.5 else 0 for prob in probabilidades]
 
     precision, recall, _ = precision_recall_curve(y_test, predicciones)
     aucpr = average_precision_score(y_test, predicciones)
