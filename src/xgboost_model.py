@@ -1,6 +1,6 @@
 import numpy as np
 import xgboost as xgb
-from sklearn.metrics import precision_recall_curve, average_precision_score
+from sklearn.metrics import precision_recall_curve, average_precision_score, confusion_matrix
 
 def train_xgboost(X_train, y_train, X_val, y_val, params=None):
     
@@ -32,7 +32,9 @@ def evaluate_xgboost(model, X_test, y_test):
     probabilidades = model.predict(dtest)
     predicciones = [1 if prob >= 0.5 else 0 for prob in probabilidades]
 
-    precision, recall, _ = precision_recall_curve(y_test, predicciones)
-    aucpr = average_precision_score(y_test, predicciones)
+    tn, fp, fn, tp = confusion_matrix(y_test, predicciones).ravel()
+    precision = tp / (tp + fp)
+    recall = tp / (tp + fn)
+    aucpr = average_precision_score(y_test, probabilidades)
 
     return precision, recall, aucpr

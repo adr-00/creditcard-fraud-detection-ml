@@ -57,8 +57,8 @@ def train_autoencoder(model, dataloader_train, dataloader_val, criterion,
         with torch.no_grad():
             for batch in dataloader_val:
                 recon = model(batch)
-                loss = criterion(recon, batch)
-                val_loss += loss.item()
+                loss_val = criterion(recon, batch)
+                val_loss += loss_val.item()
         history_val.append(loss_val.item())
         
         model.train()
@@ -86,12 +86,3 @@ def get_reconstruction_error(model, X_test_tensor):
         recon = model(X_test_tensor)
         error = ((recon - X_test_tensor)**2).mean(dim=1)
     return error.numpy() 
-
-def evaluate_autoencoder(recon_error, y_test):
-    threshold = recon_error.mean() + 3 * recon_error.std()
-
-    y_pred = (recon_error >= threshold).astype(int)
-
-    aucpr = average_precision_score(y_test, y_pred)
-
-    return aucpr
